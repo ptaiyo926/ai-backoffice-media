@@ -1,0 +1,165 @@
+{
+  "name": "04: GitHub Push + メール配信",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-04-01",
+      "name": "WF03から受け取る",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [240, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = items[0].json;\n\nconst filePath = `content/daily/${article.filename}`;\nconst contentBase64 = Buffer.from(article.content, 'utf-8').toString('base64');\n\n// Beehiiv用メール本文\nconst emailBody = article.content\n  .replace(/^---[\\s\\S]*?---\\n*/m, '')\n  .replace(/^## (.+)$/gm, '<h2>$1</h2>')\n  .replace(/^### (.+)$/gm, '<h3>$1</h3>')\n  .replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')\n  .replace(/\\n{2,}/g, '</p><p>')\n  .replace(/\\n/g, '<br>')\n  .substring(0, 3000);\n\nconst titleMatch = article.content.match(/title:\\s*\"?([^\"\\n]+)\"?/);\nconst articleTitle = titleMatch ? titleMatch[1].replace(/^\"|\"$/g, '') : article.originalTitle;\n\nconst slug = article.filename.replace('.md', '');\nconst tweetText = `【AI×バックオフィス】${articleTitle}\\n\\n${article.summary || ''}\\n\\n詳細 → $SITE_URL/daily/${slug}/\\n\\n#バックオフィスAI #経理DX #一人社長`;\n\nreturn [{\n  json: {\n    ...article,\n    filePath,\n    contentBase64,\n    emailBody,\n    tweetText,\n    articleTitle\n  }\n}];"
+      },
+      "id": "node-04-02",
+      "name": "配信データ準備",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 460]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/{{ $env.GITHUB_OWNER }}/{{ $env.GITHUB_REPO }}/contents/{{ $json.filePath }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.GITHUB_TOKEN }}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" },
+            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": { "response": { "neverError": true } }
+        }
+      },
+      "id": "node-04-03",
+      "name": "GitHub: 既存ファイルSHA確認",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 既存ファイルがあればSHAを取得（422エラー防止）\nconst shaResponse = items[0].json;\nconst prev = $('配信データ準備').first().json;\n\nconst existingSha = shaResponse.sha || null;\nconsole.log(existingSha ? `既存ファイルあり SHA: ${existingSha}` : '新規ファイル');\n\nreturn [{ json: { ...prev, existingSha } }];"
+      },
+      "id": "node-04-04",
+      "name": "SHAをマージ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/{{ $env.GITHUB_OWNER }}/{{ $env.GITHUB_REPO }}/contents/{{ $json.filePath }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.GITHUB_TOKEN }}" },
+            { "name": "Accept", "value": "application/vnd.github.v3+json" },
+            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify(Object.assign({ message: `feat: add daily article ${$json.filename}`, content: $json.contentBase64, branch: 'main' }, $json.existingSha ? { sha: $json.existingSha } : {})) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "node-04-05",
+      "name": "GitHub: 記事をコミット",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.beehiiv.com/v2/publications/{{ $env.BEEHIIV_PUBLICATION_ID }}/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.BEEHIIV_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ subject: `【AI×バックオフィス Daily】${$('SHAをマージ').first().json.articleTitle}`, content: { free: `<p>${$('SHAをマージ').first().json.emailBody}</p>` }, status: 'draft', scheduled_at: (() => { const d = new Date(); d.setHours(7,0,0,0); if (new Date() >= d) d.setDate(d.getDate()+1); return d.toISOString(); })() }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "node-04-06",
+      "name": "Beehiiv: メール配信予約",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth1Api",
+        "credentials": {
+          "oAuth1Api": {
+            "id": "TWITTER_CREDENTIAL_ID",
+            "name": "Twitter API (X)"
+          }
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ text: $('SHAをマージ').first().json.tweetText.replace('$SITE_URL', $env.SITE_URL) }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "node-04-07",
+      "name": "X (Twitter): 自動投稿",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 580]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('SHAをマージ').first().json;\nconsole.log(`✅ 完了: ${data.articleTitle}`);\nconsole.log(`  GitHub: ${data.filePath} (SHA更新: ${!!data.existingSha})`);\nconsole.log(`  Beehiiv: 配信予約済み`);\nconsole.log(`  X: 投稿済み`);\nreturn items;"
+      },
+      "id": "node-04-08",
+      "name": "完了ログ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 460]
+    }
+  ],
+  "connections": {
+    "WF03から受け取る": {
+      "main": [[{ "node": "配信データ準備", "type": "main", "index": 0 }]]
+    },
+    "配信データ準備": {
+      "main": [[{ "node": "GitHub: 既存ファイルSHA確認", "type": "main", "index": 0 }]]
+    },
+    "GitHub: 既存ファイルSHA確認": {
+      "main": [[{ "node": "SHAをマージ", "type": "main", "index": 0 }]]
+    },
+    "SHAをマージ": {
+      "main": [[{ "node": "GitHub: 記事をコミット", "type": "main", "index": 0 }]]
+    },
+    "GitHub: 記事をコミット": {
+      "main": [[
+        { "node": "Beehiiv: メール配信予約", "type": "main", "index": 0 },
+        { "node": "X (Twitter): 自動投稿", "type": "main", "index": 0 }
+      ]]
+    },
+    "Beehiiv: メール配信予約": {
+      "main": [[{ "node": "完了ログ", "type": "main", "index": 0 }]]
+    },
+    "X (Twitter): 自動投稿": {
+      "main": [[{ "node": "完了ログ", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": { "templateCreatedBy": "AI×バックオフィス Daily" },
+  "id": "workflow-04-github-push-email",
+  "tags": [{ "name": "ai-backoffice" }]
+}

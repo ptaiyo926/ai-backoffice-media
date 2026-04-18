@@ -1,0 +1,9 @@
+<span class="impact-badge impact-{{ . }}" title="影響度スコア: {{ . }}/5">
+  影響度
+  {{ if eq . 5 }}★★★★★
+  {{ else if eq . 4 }}★★★★☆
+  {{ else if eq . 3 }}★★★☆☆
+  {{ else if eq . 2 }}★★☆☆☆
+  {{ else }}★☆☆☆☆
+  {{ end }}
+</span>

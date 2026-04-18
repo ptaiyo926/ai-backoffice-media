@@ -1,0 +1,45 @@
+{{ define "main" }}
+<div class="hero">
+  <div class="container">
+    <h1 class="hero-title">AI×バックオフィス <span>最前線</span></h1>
+    <p class="hero-subtitle">会計・経理・総務のAI活用情報を毎朝7時に配信。一人社長・経理担当者のための厳選ニュース。</p>
+    <a href="#subscribe" class="btn-hero">無料で購読する</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 最新デイリー -->
+  <section class="section-latest">
+    <div class="section-header">
+      <h2>最新ニュース</h2>
+      <a href="/daily/" class="see-all">すべて見る &rarr;</a>
+    </div>
+    <div class="article-grid">
+      {{ range first 6 (where .Site.RegularPages "Section" "daily") }}
+        {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+  </section>
+
+  <!-- 週次深掘り -->
+  {{ $weekly := first 2 (where .Site.RegularPages "Section" "weekly") }}
+  {{ if $weekly }}
+  <section class="section-weekly">
+    <div class="section-header">
+      <h2>週次深掘り</h2>
+      <a href="/weekly/" class="see-all">すべて見る &rarr;</a>
+    </div>
+    <div class="article-grid article-grid--2col">
+      {{ range $weekly }}
+        {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  <!-- 購読フォーム -->
+  {{ partial "subscribe.html" . }}
+
+</div>
+{{ end }}

@@ -1,0 +1,22 @@
+<footer class="site-footer">
+  <div class="container">
+    <section id="subscribe" class="subscribe-section">
+      <h2>毎朝7時、AIとバックオフィスの最新情報をお届け</h2>
+      <p>一人社長・経理担当者向けの厳選ニュースを無料でお届けします</p>
+      <iframe src="{{ .Site.Params.beehiivUrl }}" data-test-id="beehiiv-embed"
+        width="100%" height="320" frameborder="0" scrolling="no"
+        style="border-radius:4px;border:2px solid #e5e7eb;margin:0;background-color:transparent;">
+      </iframe>
+    </section>
+
+    <div class="footer-bottom">
+      <div class="footer-links">
+        <a href="/daily/">デイリー</a>
+        <a href="/weekly/">週次深掘り</a>
+        <a href="/monthly/">月刊特集</a>
+        <a href="/index.xml">RSS</a>
+      </div>
+      <p class="footer-copy">&copy; {{ now.Year }} AI×バックオフィス Daily. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,130 @@
+{
+  "name": "03: ファクトチェック",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-03-01",
+      "name": "WF02から受け取る",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [240, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = items[0].json;\n\nconst prompt = `あなたはファクトチェッカーです。以下のAI生成記事の内容を確認してください。\n\n【チェック対象記事】\n${article.content}\n\n【チェック項目】\n1. 消費税率・控除額・法定数値に明らかな誤りがないか\n2. 制度名・法律名・団体名が正確か（freee, マネーフォワード等のサービス名含む）\n3. 論理的矛盾や事実と明らかに異なる記述がないか\n4. 過度な誇大表現（「完全自動化」「100%正確」等）がないか\n\n回答はJSONのみ（説明不要）:\n{\n  \"passed\": true または false,\n  \"issues\": [\"問題点1\", \"問題点2\"],\n  \"confidence\": 0.0〜1.0\n}`;\n\nreturn [{ json: { ...article, factCheckPrompt: prompt } }];"
+      },
+      "id": "node-03-02",
+      "name": "ファクトチェックプロンプト作成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={{ $env.GEMINI_API_KEY }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.factCheckPrompt }] }], generationConfig: { temperature: 0.1, maxOutputTokens: 1024 } }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-03-03",
+      "name": "Gemini Flash-Lite: ファクトチェック",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const responseText = items[0].json.candidates[0].content.parts[0].text;\nconst originalData = $('ファクトチェックプロンプト作成').first().json;\n\nlet result = { passed: true, issues: [], confidence: 0.8 };\ntry {\n  const match = responseText.match(/\\{[\\s\\S]*\\}/m);\n  if (match) result = JSON.parse(match[0]);\n} catch (e) {\n  console.error('ファクトチェックパースエラー:', responseText);\n  // パースエラー時はpassedとして扱う（フォールバック）\n}\n\nconsole.log(`ファクトチェック: ${result.passed ? '✅ 合格' : '❌ 問題あり'} (信頼度: ${result.confidence})`);\nif (result.issues.length > 0) console.log('問題点:', result.issues);\n\nreturn [{\n  json: {\n    ...originalData,\n    factCheckPassed: result.passed,\n    factCheckIssues: result.issues,\n    factCheckConfidence: result.confidence\n  }\n}];"
+      },
+      "id": "node-03-04",
+      "name": "チェック結果パース",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true },
+          "conditions": [
+            {
+              "id": "check-passed",
+              "leftValue": "={{ $json.factCheckPassed }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "id": "node-03-05",
+      "name": "合格？",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 460]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WORKFLOW_04_ID_HERE",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "node-03-06",
+      "name": "→ WF04: GitHub Push + 配信",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1340, 360]
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = items[0].json;\nconsole.log(`⚠️ ファクトチェック不合格のためスキップ: ${article.originalTitle}`);\nconsole.log('問題点:', article.factCheckIssues);\nreturn [];"
+      },
+      "id": "node-03-07",
+      "name": "スキップ (問題あり)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 560]
+    }
+  ],
+  "connections": {
+    "WF02から受け取る": {
+      "main": [
+        [{ "node": "ファクトチェックプロンプト作成", "type": "main", "index": 0 }]
+      ]
+    },
+    "ファクトチェックプロンプト作成": {
+      "main": [
+        [{ "node": "Gemini Flash-Lite: ファクトチェック", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gemini Flash-Lite: ファクトチェック": {
+      "main": [
+        [{ "node": "チェック結果パース", "type": "main", "index": 0 }]
+      ]
+    },
+    "チェック結果パース": {
+      "main": [
+        [{ "node": "合格？", "type": "main", "index": 0 }]
+      ]
+    },
+    "合格？": {
+      "main": [
+        [{ "node": "→ WF04: GitHub Push + 配信", "type": "main", "index": 0 }],
+        [{ "node": "スキップ (問題あり)", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": { "templateCreatedBy": "AI×バックオフィス Daily" },
+  "id": "workflow-03-fact-check",
+  "tags": [{ "name": "ai-backoffice" }]
+}

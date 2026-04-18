@@ -1,0 +1,134 @@
+{
+  "name": "02: 記事生成",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-02-01",
+      "name": "WF01から受け取る",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [240, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "// filteredArticles配列を個別アイテムに展開\nconst articles = items[0].json.filteredArticles || items;\nif (Array.isArray(articles) && articles.length > 0 && articles[0].json) {\n  return articles;\n}\nreturn (Array.isArray(articles) ? articles : [articles]).map(a => ({ json: a }));"
+      },
+      "id": "node-02-02",
+      "name": "記事リストを展開",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 460]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "node-02-03",
+      "name": "1記事ずつ処理",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = items[0].json;\nconst today = new Date().toISOString().split('T')[0];\n\nconst prompt = `あなたは会計・バックオフィス専門のAIライターです。以下のニュース記事をもとに、一人社長・経理担当者向けの日本語記事を生成してください。\n\n【元記事情報】\nタイトル: ${article.title}\n要約: ${article.summary}\nURL: ${article.link}\n\n【生成する記事の要件】\n1. タイトル: 30文字前後、具体的で読者が価値を感じるもの\n2. 3行要約: 一人社長・経理担当者の視点で、各行50文字程度\n3. 影響度スコア: 1〜5の整数（5=業務への影響大）\n4. 本文: 600〜900文字、以下の構成で\n   ## 概要（何が起きたか）\n   ## 詳細（背景と技術的内容）\n   ## 実務への示唆（具体的なアクション提言）\n5. タグ: 関連キーワード3〜5個（例: freee, 経理自動化, AI会計）\n\n回答はYAML front matter + Markdownのみ（説明不要）:\n---\ntitle: \"[タイトル]\"\ndate: ${today}T07:00:00+09:00\ndraft: false\ntype: \"daily\"\nsummary: \"[3行要約を1文に凝縮]\"\nimpact_score: [1-5]\ntags: [[タグ1], [タグ2], [タグ3]]\nsources:\n  - \"${article.link}\"\n---\n\n[本文Markdown]`;\n\nreturn [{ json: { ...article, prompt, today } }];"
+      },
+      "id": "node-02-04",
+      "name": "記事生成プロンプト作成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={{ $env.GEMINI_API_KEY }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 4096 } }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node-02-05",
+      "name": "Gemini: 記事生成",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const responseText = items[0].json.candidates[0].content.parts[0].text;\nconst originalArticle = $('記事生成プロンプト作成').first().json;\nconst today = originalArticle.today || new Date().toISOString().split('T')[0];\n\n// front matter + markdownを整形\nlet articleContent = responseText.trim();\n\n// --- で始まっていない場合に補正\nif (!articleContent.startsWith('---')) {\n  const yamlStart = articleContent.indexOf('---');\n  if (yamlStart >= 0) articleContent = articleContent.substring(yamlStart);\n}\n\n// ファイル名を生成（タイトルからURLセーフな文字列を作成）\nconst titleMatch = articleContent.match(/title:\\s*\"?([^\"\\n]+)\"?/);\nconst titleSlug = titleMatch\n  ? titleMatch[1].replace(/[^a-zA-Z0-9\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF]/g, '-').substring(0, 50)\n  : 'article';\nconst filename = `${today}-${Date.now()}.md`;\n\nconsole.log(`記事生成完了: ${filename}`);\n\nreturn [{\n  json: {\n    filename,\n    content: articleContent,\n    originalTitle: originalArticle.title,\n    sourceUrl: originalArticle.link,\n    today\n  }\n}];"
+      },
+      "id": "node-02-06",
+      "name": "Hugo Markdown形式に整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 460]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WORKFLOW_03_ID_HERE",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "node-02-07",
+      "name": "→ WF03: ファクトチェック",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [1560, 460]
+    },
+    {
+      "parameters": {},
+      "id": "node-02-08",
+      "name": "全記事処理済み確認",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1560, 640]
+    }
+  ],
+  "connections": {
+    "WF01から受け取る": {
+      "main": [
+        [{ "node": "記事リストを展開", "type": "main", "index": 0 }]
+      ]
+    },
+    "記事リストを展開": {
+      "main": [
+        [{ "node": "1記事ずつ処理", "type": "main", "index": 0 }]
+      ]
+    },
+    "1記事ずつ処理": {
+      "main": [
+        [{ "node": "記事生成プロンプト作成", "type": "main", "index": 0 }],
+        [{ "node": "全記事処理済み確認", "type": "main", "index": 0 }]
+      ]
+    },
+    "記事生成プロンプト作成": {
+      "main": [
+        [{ "node": "Gemini: 記事生成", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gemini: 記事生成": {
+      "main": [
+        [{ "node": "Hugo Markdown形式に整形", "type": "main", "index": 0 }]
+      ]
+    },
+    "Hugo Markdown形式に整形": {
+      "main": [
+        [{ "node": "→ WF03: ファクトチェック", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": { "templateCreatedBy": "AI×バックオフィス Daily" },
+  "id": "workflow-02-article-generation",
+  "tags": [{ "name": "ai-backoffice" }]
+}

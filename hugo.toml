@@ -1,0 +1,30 @@
+baseURL = "https://ai-backoffice.jp/"
+languageCode = "ja"
+defaultContentLanguage = "ja"
+title = "AI×バックオフィス Daily"
+theme = ""
+paginate = 20
+enableRobotsTXT = true
+
+[params]
+  description = "会計・バックオフィス領域のAI活用情報を毎日自動配信"
+  beehiivUrl = "https://embeds.beehiiv.com/YOUR_FORM_ID"
+  twitterHandle = "@ai_backoffice"
+  siteUrl = "https://ai-backoffice.jp"
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[markup]
+  [markup.highlight]
+    style = "github"
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  term = ["HTML"]
+  taxonomy = ["HTML"]

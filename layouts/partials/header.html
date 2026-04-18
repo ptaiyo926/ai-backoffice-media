@@ -1,0 +1,14 @@
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="site-logo">
+      <span class="logo-ai">AI</span><span class="logo-x">×</span><span class="logo-backoffice">バックオフィス</span>
+      <span class="logo-daily">Daily</span>
+    </a>
+    <nav class="site-nav">
+      <a href="/daily/" {{ if (eq .Section "daily") }}class="active"{{ end }}>デイリー</a>
+      <a href="/weekly/" {{ if (eq .Section "weekly") }}class="active"{{ end }}>週次深掘り</a>
+      <a href="/monthly/" {{ if (eq .Section "monthly") }}class="active"{{ end }}>月刊特集</a>
+    </nav>
+    <a href="#subscribe" class="btn-subscribe">無料購読</a>
+  </div>
+</header>

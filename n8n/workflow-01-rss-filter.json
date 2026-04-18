@@ -1,0 +1,204 @@
+{
+  "name": "01: RSS収集 + フィルタリング",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 20 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-01-01",
+      "name": "毎朝5:30 JST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 460]
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "id": "node-01-02",
+      "name": "TechCrunch AI",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",
+        "options": {}
+      },
+      "id": "node-01-03",
+      "name": "ITmedia AI+",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [460, 460]
+    },
+    {
+      "parameters": {
+        "url": "https://ledge.ai/feed/",
+        "options": {}
+      },
+      "id": "node-01-04",
+      "name": "Ledge.ai",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [460, 620]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "node-01-05",
+      "name": "Merge 1+2",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "node-01-06",
+      "name": "Merge All",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 最新30件に絞り、Gemini用プロンプトを構築\nconst articles = items.slice(0, 30).map(item => ({\n  title: item.json.title || '',\n  summary: (item.json.contentSnippet || item.json.content || '').substring(0, 200),\n  link: item.json.link || '',\n  pubDate: item.json.pubDate || new Date().toISOString()\n}));\n\nconst articleList = articles\n  .map((a, i) => `${i + 1}. タイトル: ${a.title}\\n   要約: ${a.summary}`)\n  .join('\\n\\n');\n\nconst prompt = `以下の${articles.length}件のニュース記事それぞれについて、「会計・経理・バックオフィス・一人社長の業務効率化」への関連度を1〜10で評価してください。\n\n評価基準:\n- 10: 経理・会計ソフト、請求書、仕訳、税務申告などへの直接的なAI活用\n- 7-9: バックオフィス業務全般に影響するAIニュース\n- 4-6: 一般的なビジネスAIニュース\n- 1-3: 関連性が低い\n\n記事一覧:\n${articleList}\n\n回答はJSONのみ（説明不要）:\n[{\"index\": 1, \"score\": 8}, {\"index\": 2, \"score\": 3}, ...]`;\n\nreturn [{ json: { articles, prompt } }];"
+      },
+      "id": "node-01-07",
+      "name": "Gemini用プロンプト準備",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={{ $env.GEMINI_API_KEY }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.prompt }] }], generationConfig: { temperature: 0.1, maxOutputTokens: 1024 } }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-01-08",
+      "name": "Gemini: 関連度スコアリング",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const responseText = items[0].json.candidates[0].content.parts[0].text;\nconst articles = $('Gemini用プロンプト準備').first().json.articles;\n\n// JSON配列を抽出してパース\nlet scores = [];\ntry {\n  const match = responseText.match(/\\[\\s*\\{[\\s\\S]*?\\}\\s*\\]/m);\n  if (match) scores = JSON.parse(match[0]);\n} catch (e) {\n  console.error('スコアパースエラー:', responseText);\n  return [];\n}\n\n// スコア7以上でフィルタリング\nconst filtered = scores\n  .filter(s => s.score >= 7)\n  .map(s => articles[s.index - 1] ? { ...articles[s.index - 1], relevanceScore: s.score } : null)\n  .filter(Boolean);\n\nconsole.log(`取得: ${articles.length}件 → フィルタ後: ${filtered.length}件`);\n\nif (filtered.length === 0) {\n  console.log('本日は関連記事なし');\n  return [];\n}\n\nreturn filtered.map(a => ({ json: a }));"
+      },
+      "id": "node-01-09",
+      "name": "スコアパース & フィルタ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 460]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "filteredArticles",
+        "options": {}
+      },
+      "id": "node-01-10",
+      "name": "記事をまとめる",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1780, 460]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "WORKFLOW_02_ID_HERE",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "node-01-11",
+      "name": "→ WF02: 記事生成",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [2000, 460]
+    }
+  ],
+  "connections": {
+    "毎朝5:30 JST": {
+      "main": [
+        [
+          { "node": "TechCrunch AI", "type": "main", "index": 0 },
+          { "node": "ITmedia AI+", "type": "main", "index": 0 },
+          { "node": "Ledge.ai", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "TechCrunch AI": {
+      "main": [
+        [{ "node": "Merge 1+2", "type": "main", "index": 0 }]
+      ]
+    },
+    "ITmedia AI+": {
+      "main": [
+        [{ "node": "Merge 1+2", "type": "main", "index": 1 }]
+      ]
+    },
+    "Merge 1+2": {
+      "main": [
+        [{ "node": "Merge All", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ledge.ai": {
+      "main": [
+        [{ "node": "Merge All", "type": "main", "index": 1 }]
+      ]
+    },
+    "Merge All": {
+      "main": [
+        [{ "node": "Gemini用プロンプト準備", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gemini用プロンプト準備": {
+      "main": [
+        [{ "node": "Gemini: 関連度スコアリング", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gemini: 関連度スコアリング": {
+      "main": [
+        [{ "node": "スコアパース & フィルタ", "type": "main", "index": 0 }]
+      ]
+    },
+    "スコアパース & フィルタ": {
+      "main": [
+        [{ "node": "記事をまとめる", "type": "main", "index": 0 }]
+      ]
+    },
+    "記事をまとめる": {
+      "main": [
+        [{ "node": "→ WF02: 記事生成", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": { "templateCreatedBy": "AI×バックオフィス Daily" },
+  "id": "workflow-01-rss-filter",
+  "tags": [{ "name": "ai-backoffice" }]
+}
