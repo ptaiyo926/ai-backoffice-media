@@ -2,7 +2,6 @@ baseURL = "https://ai-backoffice.jp/"
 languageCode = "ja"
 defaultContentLanguage = "ja"
 title = "AI×バックオフィス Daily"
-theme = ""
 paginate = 20
 enableRobotsTXT = true
 
