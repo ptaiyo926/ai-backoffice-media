@@ -323,12 +323,12 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
   border: 1px solid #dbeafe;
   border-radius: 12px;
-  padding: 48px;
+  padding: 28px 32px;
   text-align: center;
-  margin: 60px 0 40px;
+  margin: 36px 0 24px;
 }
-.subscribe-section h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-.subscribe-section p { color: var(--color-text-muted); margin-bottom: 24px; }
+.subscribe-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.subscribe-section p { color: var(--color-text-muted); margin-bottom: 12px; font-size: 14px; }
 
 /* ===== Footer ===== */
 .site-footer { background: var(--color-surface); border-top: 1px solid var(--color-border); padding-top: 0; }
