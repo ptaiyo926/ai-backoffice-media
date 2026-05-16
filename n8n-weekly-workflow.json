@@ -1,0 +1,234 @@
+{
+  "name": "週次深掘り自動生成",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 30 20 * * 5"
+            }
+          ]
+        }
+      },
+      "id": "node-0001",
+      "name": "毎週金曜5:30 JST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst dayOfWeek = now.getDay();\nconst daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;\nconst monday = new Date(now);\nmonday.setDate(now.getDate() - daysFromMonday);\nmonday.setHours(0, 0, 0, 0);\n\nconst friday = new Date(monday);\nfriday.setDate(monday.getDate() + 4);\n\nconst today = now.toISOString().split('T')[0];\nconst weekStart = monday.toISOString().split('T')[0];\nconst weekEnd = friday.toISOString().split('T')[0];\n\nconst startOfYear = new Date(now.getFullYear(), 0, 1);\nconst weekNum = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);\nconst weekLabel = `${now.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;\n\nreturn [{ json: { today, weekStart, weekEnd, weekLabel } }];"
+      },
+      "id": "node-0002",
+      "name": "今週の日付計算",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/ptaiyo926/ai-backoffice-media/contents/content/daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GITHUB_TOKEN"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-0003",
+      "name": "GitHub: デイリー記事一覧取得",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const dateInfo = $('今週の日付計算').first().json;\nconst weekStart = dateInfo.weekStart;\nconst weekEnd = dateInfo.weekEnd;\nconst weekLabel = dateInfo.weekLabel;\nconst today = dateInfo.today;\n\n// GitHub APIのレスポンスは配列か単一アイテムかを両方対応\nlet allFiles;\nif (Array.isArray(items[0].json)) {\n  allFiles = items[0].json;\n} else {\n  allFiles = items.map(item => item.json);\n}\n\n// 今週のファイルをフィルタリング\nconst weekFiles = allFiles.filter(file => {\n  const dateMatch = file.name && file.name.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  if (!dateMatch) return false;\n  const fileDate = dateMatch[1];\n  return fileDate >= weekStart && fileDate <= weekEnd;\n});\n\nconst articleList = weekFiles.length > 0\n  ? weekFiles.map(f => `- ${f.name}`).join('\\n')\n  : '（今週のデイリー記事はまだありません）';\n\nconst prompt = `あなたはAI×バックオフィス専門メディアの編集者です。\n\n今週（${weekStart}〜${weekEnd}）に生成されたデイリー記事一覧：\n${articleList}\n\n以下の条件で週次深掘り記事を3000字以上で生成してください。\n\n【テーマ選定基準】\n- 一人社長・経理担当者が最も実務で活用できるAI×バックオフィステーマ\n- AI自動化・会計DX・業務効率化に関連するテーマを優先\n- 具体的なアクションに落とし込める内容\n\n【出力形式】コードブロック不要。以下の形式のみで出力：\n---\ntitle: \"【週次深掘り】（タイトル）\"\ndate: \"${today}T09:00:00+09:00\"\ndraft: false\ntype: \"weekly\"\nsummary: \"（150字以内の要約）\"\nimage: \"https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80\"\nweek: \"${weekLabel}\"\nimpact_score: 5\ntags: [\"タグ1\", \"タグ2\", \"タグ3\"]\n---\n\n## （導入：なぜ今このテーマが重要か）\n（300字以上で時代背景と課題を説明）\n\n## （分析①：具体的な内容と深掘り）\n（500字以上。{{< marker >}}重要ポイント{{< /marker >}}を2〜3箇所使用）\n\n## （分析②：実務への応用）\n（500字以上）\n\n## （分析③：比較・選択基準など）\n（400字以上）\n\n## 今週の結論：あなたへのアクションプラン\n1. **アクション1**——詳細な説明\n2. **アクション2**——詳細な説明\n3. **アクション3**——詳細な説明\n\n※マネーフォワードに言及する場合は {{< affiliate-mf \"マネーフォワード クラウド会計\" >}} を使用\n※freeeに言及する場合は {{< affiliate-freee \"freee会計\" >}} を使用\n\n【制約】合計3000字以上。必ず日本語で出力。`;\n\nreturn [{ json: { prompt, weekLabel, today, weekStart, weekEnd, fileCount: weekFiles.length } }];"
+      },
+      "id": "node-0004",
+      "name": "今週記事フィルタ＆プロンプト作成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_GEMINI_API_KEY",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"contents\":[{\"parts\":[{\"text\":{{ JSON.stringify($json.prompt) }}}]}],\"generationConfig\":{\"temperature\":0.7,\"maxOutputTokens\":8192}}",
+        "options": {}
+      },
+      "id": "node-0005",
+      "name": "Gemini: 週次記事生成",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const responseText = items[0].json.candidates[0].content.parts[0].text;\nconst metaInfo = $('今週記事フィルタ＆プロンプト作成').first().json;\nconst today = metaInfo.today;\nconst weekLabel = metaInfo.weekLabel;\n\nlet articleBody = responseText.trim();\nlet frontMatterYaml = '';\nlet bodyContent = articleBody;\n\nif (articleBody.startsWith('---')) {\n  const firstClose = articleBody.indexOf('\\n---', 3);\n  if (firstClose > 0) {\n    frontMatterYaml = articleBody.substring(3, firstClose).trim();\n    bodyContent = articleBody.substring(firstClose + 4).trim();\n  }\n} else if (articleBody.startsWith('```')) {\n  const firstNewline = articleBody.indexOf('\\n');\n  const codeEnd = articleBody.indexOf('\\n```', firstNewline);\n  const dashEnd = articleBody.indexOf('\\n---', firstNewline);\n  let endPos = -1;\n  if (codeEnd > 0 && (dashEnd < 0 || codeEnd < dashEnd)) {\n    endPos = codeEnd;\n  } else if (dashEnd > 0) {\n    endPos = dashEnd;\n  }\n  if (endPos > 0) {\n    frontMatterYaml = articleBody.substring(firstNewline + 1, endPos).trim();\n    bodyContent = articleBody.substring(endPos + 4).trim();\n  }\n}\n\nconst titleMatch = frontMatterYaml.match(/title:\\s*\"?([^\"\\n]+)\"?/);\nconst title = titleMatch\n  ? titleMatch[1].trim().replace(/\"/g, '\\\\\"')\n  : `【週次深掘り】週次レポート ${weekLabel}`;\n\nconst dateMatch = frontMatterYaml.match(/date:\\s*\"?([^\"\\n]+)\"?/);\nconst articleDate = dateMatch ? dateMatch[1].trim() : `${today}T09:00:00+09:00`;\n\nconst summaryMatch = frontMatterYaml.match(/summary:\\s*\"?([^\"\\n]+)\"?/);\nconst summary = summaryMatch ? summaryMatch[1].replace(/\"/g, '\\\\\"') : '';\n\nconst imageMatch = frontMatterYaml.match(/image:\\s*\"?([^\"\\n]+)\"?/);\nconst image = imageMatch ? imageMatch[1].trim() : 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80';\n\nconst tagsMatch = frontMatterYaml.match(/tags:\\s*(\\[.+\\])/);\nconst tags = tagsMatch ? tagsMatch[1] : '[\"バックオフィスDX\", \"AI活用\", \"週次深掘り\"]';\n\nconst content = `---\\ntitle: \"${title}\"\\ndate: \"${articleDate}\"\\ndraft: false\\ntype: \"weekly\"\\nsummary: \"${summary}\"\\nimage: \"${image}\"\\nweek: \"${weekLabel}\"\\nimpact_score: 5\\ntags: ${tags}\\n---\\n\\n${bodyContent}`;\n\nconst filename = `${today}-weekly-${Date.now()}.md`;\nreturn [{ json: { filename, content, today, weekLabel } }];"
+      },
+      "id": "node-0006",
+      "name": "Hugo Markdown整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = items[0].json;\nconst filePath = `content/weekly/${article.filename}`;\nconst contentBase64 = Buffer.from(article.content, 'utf-8').toString('base64');\nreturn [{ json: { ...article, filePath, contentBase64 } }];"
+      },
+      "id": "node-0007",
+      "name": "配信データ準備",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/ptaiyo926/ai-backoffice-media/contents/{{ $json.filePath }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GITHUB_TOKEN"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "node-0008",
+      "name": "GitHub: 既存ファイルSHA確認",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = $('配信データ準備').first().json;\nconst shaResponse = items[0].json;\nconst sha = shaResponse.sha || null;\n\nconst commitBody = {\n  message: `Add weekly deep-dive article: ${article.filename}`,\n  content: article.contentBase64\n};\nif (sha) commitBody.sha = sha;\n\nreturn [{ json: { ...article, sha, commitBodyJson: JSON.stringify(commitBody) } }];"
+      },
+      "id": "node-0009",
+      "name": "SHAをマージ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/ptaiyo926/ai-backoffice-media/contents/{{ $json.filePath }}",
+        "method": "PUT",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GITHUB_TOKEN"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.commitBodyJson }}",
+        "options": {}
+      },
+      "id": "node-0010",
+      "name": "GitHub: 記事をコミット",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const filename = $('Hugo Markdown整形').first().json.filename;\nconst weekLabel = $('Hugo Markdown整形').first().json.weekLabel;\nconsole.log(`週次記事コミット完了: ${filename}`);\nreturn [{ json: { status: 'success', message: `週次深掘り記事 ${weekLabel} を生成・コミットしました`, filename } }];"
+      },
+      "id": "node-0011",
+      "name": "完了ログ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "毎週金曜5:30 JST": {
+      "main": [[{ "node": "今週の日付計算", "type": "main", "index": 0 }]]
+    },
+    "今週の日付計算": {
+      "main": [[{ "node": "GitHub: デイリー記事一覧取得", "type": "main", "index": 0 }]]
+    },
+    "GitHub: デイリー記事一覧取得": {
+      "main": [[{ "node": "今週記事フィルタ＆プロンプト作成", "type": "main", "index": 0 }]]
+    },
+    "今週記事フィルタ＆プロンプト作成": {
+      "main": [[{ "node": "Gemini: 週次記事生成", "type": "main", "index": 0 }]]
+    },
+    "Gemini: 週次記事生成": {
+      "main": [[{ "node": "Hugo Markdown整形", "type": "main", "index": 0 }]]
+    },
+    "Hugo Markdown整形": {
+      "main": [[{ "node": "配信データ準備", "type": "main", "index": 0 }]]
+    },
+    "配信データ準備": {
+      "main": [[{ "node": "GitHub: 既存ファイルSHA確認", "type": "main", "index": 0 }]]
+    },
+    "GitHub: 既存ファイルSHA確認": {
+      "main": [[{ "node": "SHAをマージ", "type": "main", "index": 0 }]]
+    },
+    "SHAをマージ": {
+      "main": [[{ "node": "GitHub: 記事をコミット", "type": "main", "index": 0 }]]
+    },
+    "GitHub: 記事をコミット": {
+      "main": [[{ "node": "完了ログ", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Tokyo"
+  },
+  "tags": []
+}
