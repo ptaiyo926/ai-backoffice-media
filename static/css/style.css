@@ -348,7 +348,7 @@ a:hover { text-decoration: underline; }
 
 /* ===== Marker Highlight ===== */
 .marker {
-  background: linear-gradient(transparent 55%, rgba(255, 214, 0, 0.55) 55%);
+  background: linear-gradient(transparent 55%, rgba(37, 99, 235, 0.2) 55%);
   padding-bottom: 1px;
 }
 
