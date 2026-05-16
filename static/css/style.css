@@ -318,6 +318,40 @@ a:hover { text-decoration: underline; }
 .page-header h1 { font-size: 32px; font-weight: 800; }
 .page-description { color: var(--color-text-muted); margin-top: 8px; }
 
+/* ===== Weekly Badge ===== */
+.weekly-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+}
+
+/* ===== Article Hero Image ===== */
+.article-hero-image {
+  margin: 28px 0 36px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+}
+.article-hero-image img {
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===== Marker Highlight ===== */
+.marker {
+  background: linear-gradient(transparent 55%, rgba(255, 214, 0, 0.55) 55%);
+  padding-bottom: 1px;
+}
+
 /* ===== Subscribe Section ===== */
 .subscribe-section {
   background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);

@@ -1,0 +1,38 @@
+{{ define "main" }}
+<div class="container">
+  <article class="single-article">
+    <header class="article-header">
+      <div class="article-meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年1月2日" }}</time>
+        <span class="weekly-badge">週次深掘り</span>
+        {{ range .Params.tags }}
+          <a href="/tags/{{ . | urlize }}" class="tag">{{ . }}</a>
+        {{ end }}
+      </div>
+      <h1 class="article-title">{{ .Title }}</h1>
+      {{ with .Params.summary }}
+        <p class="article-summary">{{ . }}</p>
+      {{ end }}
+    </header>
+
+    {{ with .Params.image }}
+    <div class="article-hero-image">
+      <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy">
+    </div>
+    {{ end }}
+
+    <div class="article-body">
+      {{ .Content }}
+    </div>
+  </article>
+
+  <nav class="article-nav">
+    {{ with .PrevInSection }}
+      <a href="{{ .Permalink }}" class="nav-prev">&larr; {{ .Title }}</a>
+    {{ end }}
+    {{ with .NextInSection }}
+      <a href="{{ .Permalink }}" class="nav-next">{{ .Title }} &rarr;</a>
+    {{ end }}
+  </nav>
+</div>
+{{ end }}
