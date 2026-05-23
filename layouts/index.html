@@ -38,6 +38,22 @@
   </section>
   {{ end }}
 
+  <!-- 月刊特集 -->
+  {{ $monthly := first 2 (where .Site.RegularPages "Section" "monthly") }}
+  {{ if $monthly }}
+  <section class="section-monthly">
+    <div class="section-header">
+      <h2>月刊特集</h2>
+      <a href="/monthly/" class="see-all">すべて見る &rarr;</a>
+    </div>
+    <div class="article-grid article-grid--2col">
+      {{ range $monthly }}
+        {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
   <!-- 購読フォーム -->
   {{ partial "subscribe.html" . }}
 

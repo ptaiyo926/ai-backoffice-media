@@ -336,6 +336,20 @@ a:hover { text-decoration: underline; }
   letter-spacing: 0.05em;
 }
 
+/* ===== Monthly Badge ===== */
+.monthly-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+}
+
 /* ===== Article Hero Image ===== */
 .article-hero-image {
   margin: 28px 0 36px;
