@@ -1,32 +1,57 @@
 {{ define "main" }}
-<div class="container">
-  <article class="single-article">
-    <header class="article-header">
-      <div class="article-meta">
-        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年1月2日" }}</time>
-        <span class="monthly-badge">月刊特集</span>
-        {{ range .Params.tags }}
-          <a href="/tags/{{ . | urlize }}" class="tag">{{ . }}</a>
-        {{ end }}
+
+{{/* ── Full-width hero image with overlay title ── */}}
+<div class="monthly-hero" {{ with .Params.image }}style="background-image:url('{{ . }}')"{{ end }}>
+  <div class="monthly-hero-overlay">
+    <div class="container">
+      <div class="monthly-hero-content">
+        <div class="monthly-hero-eyebrow">
+          <span class="monthly-badge-lg">月刊特集</span>
+          {{ with .Params.month }}<span class="monthly-issue">{{ . }}号</span>{{ end }}
+        </div>
+        <h1 class="monthly-hero-title">{{ .Title }}</h1>
+        <div class="monthly-hero-info">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年1月2日" }}</time>
+          <span>・</span>
+          <span>読了目安 約{{ div .WordCount 350 }}分</span>
+          {{ range .Params.tags }}
+            <a href="/tags/{{ . | urlize }}" class="monthly-hero-tag">{{ . }}</a>
+          {{ end }}
+        </div>
       </div>
-      <h1 class="article-title">{{ .Title }}</h1>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="monthly-layout">
+    <article class="monthly-article">
+
+      {{/* ── Summary box ── */}}
       {{ with .Params.summary }}
-        <p class="article-summary">{{ . }}</p>
+      <div class="monthly-summary">
+        <div class="monthly-summary-label">📋 この記事のポイント</div>
+        <p>{{ . }}</p>
+      </div>
       {{ end }}
-    </header>
 
-    {{ with .Params.image }}
-    <div class="article-hero-image">
-      <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy">
-    </div>
-    {{ end }}
+      {{/* ── Body ── */}}
+      <div class="monthly-body">
+        {{ .Content }}
+      </div>
 
-    <div class="article-body">
-      {{ .Content }}
-    </div>
-  </article>
+      {{/* ── Bottom subscribe ── */}}
+      <div class="monthly-subscribe-cta">
+        <p class="monthly-subscribe-title">毎週・毎月の深掘り記事を無料で受け取る</p>
+        <p class="monthly-subscribe-desc">AI×バックオフィスの最新情報を週次・月次で配信。一人社長・経理担当者向けの実務に直結する情報をお届けします。</p>
+        <a href="#subscribe" class="monthly-subscribe-btn">無料で購読する</a>
+      </div>
 
-  <nav class="article-nav">
+    </article>
+  </div>
+
+  {{/* ── Article nav ── */}}
+  <nav class="article-nav monthly-nav">
     {{ with .PrevInSection }}
       <a href="{{ .Permalink }}" class="nav-prev">&larr; {{ .Title }}</a>
     {{ end }}
