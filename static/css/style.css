@@ -215,11 +215,11 @@ a:hover { text-decoration: underline; }
   font-size: 14px;
   color: var(--color-text-muted);
   line-height: 1.6;
-  flex: 1;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  max-height: calc(1.6em * 3);
 }
 .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 
