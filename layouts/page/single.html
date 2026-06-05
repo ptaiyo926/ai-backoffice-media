@@ -1,0 +1,32 @@
+{{ define "main" }}
+
+{{/* ── Hero section ── */}}
+<div class="page-hero">
+  <div class="container">
+    <div class="page-hero-inner">
+      {{ with .Params.eyebrow }}
+        <div class="page-eyebrow">{{ . }}</div>
+      {{ end }}
+      <h1 class="page-title">{{ .Title }}</h1>
+      {{ with .Params.lead }}
+        <p class="page-lead">{{ . }}</p>
+      {{ end }}
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <article class="page-article">
+    <div class="page-body">
+      {{ .Content }}
+    </div>
+
+    {{ with .Params.updated }}
+      <div class="page-meta">
+        <span>最終更新：{{ . }}</span>
+      </div>
+    {{ end }}
+  </article>
+</div>
+
+{{ end }}
