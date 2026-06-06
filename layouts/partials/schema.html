@@ -1,0 +1,89 @@
+{{/* ── JSON-LD structured data for SEO ── */}}
+
+{{/* Common author / publisher */}}
+{{ $author := dict
+  "@type" "Person"
+  "name" "AIバックオフィスのたいよう"
+  "url" (printf "%sabout/" .Site.BaseURL)
+  "sameAs" (slice "https://x.com/AI_BackOfficejp")
+}}
+
+{{ $publisher := dict
+  "@type" "Organization"
+  "name" .Site.Title
+  "url" .Site.BaseURL
+  "logo" (dict
+    "@type" "ImageObject"
+    "url" (printf "%simages/ogp.png" .Site.BaseURL)
+    "width" 1200
+    "height" 630)
+}}
+
+{{ if .IsHome }}
+  {{/* ── Site / WebSite schema on home ── */}}
+  {{ $siteSchema := dict
+    "@context" "https://schema.org"
+    "@type" "WebSite"
+    "name" .Site.Title
+    "url" .Site.BaseURL
+    "description" .Site.Params.description
+    "publisher" $publisher
+    "inLanguage" "ja"
+  }}
+  <script type="application/ld+json">{{ $siteSchema | jsonify | safeJS }}</script>
+
+{{ else if .IsPage }}
+  {{ $section := .Section }}
+  {{ if or (eq $section "daily") (or (eq $section "weekly") (eq $section "monthly")) }}
+    {{/* ── Article schema for content pages ── */}}
+    {{ $description := .Params.summary | default .Description | default .Site.Params.description }}
+    {{ $image := .Params.image | default (printf "%simages/ogp.png" .Site.BaseURL) }}
+
+    {{ $articleSchema := dict
+      "@context" "https://schema.org"
+      "@type" "Article"
+      "headline" .Title
+      "description" $description
+      "image" $image
+      "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
+      "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
+      "author" $author
+      "publisher" $publisher
+      "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
+      "inLanguage" "ja"
+      "keywords" (delimit .Params.tags ",")
+    }}
+    <script type="application/ld+json">{{ $articleSchema | jsonify | safeJS }}</script>
+
+    {{/* ── Breadcrumb ── */}}
+    {{ $sectionName := "" }}
+    {{ if eq $section "daily" }}{{ $sectionName = "デイリー" }}{{ end }}
+    {{ if eq $section "weekly" }}{{ $sectionName = "週次深掘り" }}{{ end }}
+    {{ if eq $section "monthly" }}{{ $sectionName = "月刊特集" }}{{ end }}
+
+    {{ $breadcrumb := dict
+      "@context" "https://schema.org"
+      "@type" "BreadcrumbList"
+      "itemListElement" (slice
+        (dict "@type" "ListItem" "position" 1 "name" "ホーム" "item" .Site.BaseURL)
+        (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" (printf "%s%s/" .Site.BaseURL $section))
+        (dict "@type" "ListItem" "position" 3 "name" .Title "item" .Permalink))
+    }}
+    <script type="application/ld+json">{{ $breadcrumb | jsonify | safeJS }}</script>
+
+  {{ else if eq .File.LogicalName "about.md" }}
+    {{/* ── About page: ProfilePage with Person ── */}}
+    {{ $profileSchema := dict
+      "@context" "https://schema.org"
+      "@type" "ProfilePage"
+      "mainEntity" (dict
+        "@type" "Person"
+        "name" "AIバックオフィスのたいよう"
+        "url" .Permalink
+        "jobTitle" "会計・AIコンサルタント"
+        "description" "一人社長・経理担当者向けにAI×バックオフィスの情報を発信"
+        "sameAs" (slice "https://x.com/AI_BackOfficejp"))
+    }}
+    <script type="application/ld+json">{{ $profileSchema | jsonify | safeJS }}</script>
+  {{ end }}
+{{ end }}
