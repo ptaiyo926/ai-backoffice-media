@@ -1,0 +1,12 @@
+{
+  "name": "ai-backoffice-media",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI×バックオフィス Daily - Static site with built-in search",
+  "scripts": {
+    "build": "hugo --minify && pagefind --site public --output-subdir pagefind"
+  },
+  "devDependencies": {
+    "pagefind": "^1.1.0"
+  }
+}

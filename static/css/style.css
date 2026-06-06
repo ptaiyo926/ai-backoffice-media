@@ -605,6 +605,133 @@ a:hover { text-decoration: underline; }
   .monthly-subscribe-cta { padding: 28px 20px; }
 }
 
+/* ===== Search ===== */
+.btn-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.btn-search:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.btn-search svg {
+  flex-shrink: 0;
+}
+
+.search-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+}
+
+.search-modal.is-open {
+  display: block;
+}
+
+.search-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  backdrop-filter: blur(4px);
+  animation: searchFade .18s ease;
+}
+
+.search-modal-panel {
+  position: relative;
+  max-width: 680px;
+  margin: 80px auto 0;
+  padding: 28px 24px 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .35);
+  animation: searchSlide .2s ease;
+}
+
+@keyframes searchFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes searchSlide {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.search-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.search-modal-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.search-modal-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 12px 0 0;
+}
+
+body.search-open {
+  overflow: hidden;
+}
+
+/* Override Pagefind defaults to match our brand */
+:root {
+  --pagefind-ui-scale: 0.85;
+  --pagefind-ui-primary: #2563eb;
+  --pagefind-ui-text: #0f172a;
+  --pagefind-ui-background: #ffffff;
+  --pagefind-ui-border: #e2e8f0;
+  --pagefind-ui-tag: #eff6ff;
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 10px;
+  --pagefind-ui-image-border-radius: 8px;
+  --pagefind-ui-font: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+}
+
+@media (max-width: 640px) {
+  .btn-search-label {
+    display: none;
+  }
+  .btn-search {
+    padding: 8px;
+  }
+  .search-modal-panel {
+    margin: 16px;
+    padding: 24px 16px 16px;
+  }
+}
+
 /* ===== Newsletter landing page ===== */
 .newsletter-stats {
   display: grid;

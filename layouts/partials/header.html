@@ -9,6 +9,78 @@
       <a href="/weekly/" {{ if (eq .Section "weekly") }}class="active"{{ end }}>週次深掘り</a>
       <a href="/monthly/" {{ if (eq .Section "monthly") }}class="active"{{ end }}>月刊特集</a>
     </nav>
+    <button type="button" class="btn-search" aria-label="検索" onclick="window.openSearchModal && window.openSearchModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="20" y1="20" x2="16.5" y2="16.5"/>
+      </svg>
+      <span class="btn-search-label">検索</span>
+    </button>
     <a href="#subscribe" class="btn-subscribe">無料購読</a>
   </div>
 </header>
+
+{{/* ── Search modal (powered by Pagefind) ── */}}
+<div id="search-modal" class="search-modal" aria-hidden="true" role="dialog" aria-label="サイト内検索">
+  <div class="search-modal-backdrop" onclick="window.closeSearchModal && window.closeSearchModal()"></div>
+  <div class="search-modal-panel">
+    <button type="button" class="search-modal-close" aria-label="閉じる" onclick="window.closeSearchModal && window.closeSearchModal()">×</button>
+    <div id="search"></div>
+    <p class="search-modal-hint">ESCキーで閉じる</p>
+  </div>
+</div>
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  (function () {
+    var initialized = false;
+    function init() {
+      if (initialized || !window.PagefindUI) return;
+      initialized = true;
+      new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showImages: false,
+        resetStyles: false,
+        translations: {
+          placeholder: "記事を検索（例: 経費精算、ChatGPT、freee）",
+          clear_search: "クリア",
+          load_more: "もっと表示",
+          search_label: "サイト内検索",
+          filters_label: "絞り込み",
+          zero_results: "[SEARCH_TERM] に一致する記事は見つかりませんでした",
+          many_results: "[SEARCH_TERM] の検索結果: [COUNT] 件",
+          one_result: "[SEARCH_TERM] の検索結果: [COUNT] 件",
+          alt_search: "[SEARCH_TERM] に一致する記事はありません。[DIFFERENT_TERM] の結果を表示しています",
+          search_suggestion: "[SEARCH_TERM] に一致する結果は見つかりませんでした。次のキーワードをお試しください:",
+          searching: "[SEARCH_TERM] を検索中..."
+        }
+      });
+    }
+    window.openSearchModal = function () {
+      var modal = document.getElementById("search-modal");
+      modal.setAttribute("aria-hidden", "false");
+      modal.classList.add("is-open");
+      document.body.classList.add("search-open");
+      init();
+      setTimeout(function () {
+        var input = modal.querySelector("input[type='text']");
+        if (input) input.focus();
+      }, 60);
+    };
+    window.closeSearchModal = function () {
+      var modal = document.getElementById("search-modal");
+      modal.setAttribute("aria-hidden", "true");
+      modal.classList.remove("is-open");
+      document.body.classList.remove("search-open");
+    };
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") window.closeSearchModal();
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        window.openSearchModal();
+      }
+    });
+  })();
+</script>
