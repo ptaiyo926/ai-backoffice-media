@@ -1,0 +1,120 @@
+{{ define "main" }}
+
+{{/* Stats based on existing daily articles */}}
+{{ $dailies := where .Site.RegularPages "Section" "daily" }}
+{{ $weeklies := where .Site.RegularPages "Section" "weekly" }}
+{{ $monthlies := where .Site.RegularPages "Section" "monthly" }}
+{{ $totalCount := add (len $dailies) (add (len $weeklies) (len $monthlies)) }}
+{{ $recentDailies := first 6 (sort $dailies "Date" "desc") }}
+
+{{/* ── Hero ── */}}
+<div class="page-hero">
+  <div class="container">
+    <div class="page-hero-inner">
+      {{ with .Params.eyebrow }}
+        <div class="page-eyebrow">{{ . }}</div>
+      {{ end }}
+      <h1 class="page-title">{{ .Title }}</h1>
+      {{ with .Params.lead }}
+        <p class="page-lead">{{ . }}</p>
+      {{ end }}
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  {{/* ── Stats row ── */}}
+  <section class="newsletter-stats">
+    <div class="newsletter-stat">
+      <div class="newsletter-stat-number">{{ $totalCount }}<span>本</span></div>
+      <div class="newsletter-stat-label">これまでの配信記事数</div>
+    </div>
+    <div class="newsletter-stat">
+      <div class="newsletter-stat-number">毎朝<span>7時</span></div>
+      <div class="newsletter-stat-label">定刻配信</div>
+    </div>
+    <div class="newsletter-stat">
+      <div class="newsletter-stat-number">¥0<span>/月</span></div>
+      <div class="newsletter-stat-label">無料・広告なし</div>
+    </div>
+  </section>
+
+  {{/* ── What you'll get ── */}}
+  <section class="newsletter-promise">
+    <h2 class="newsletter-section-title">こんな内容が毎朝届きます</h2>
+
+    <div class="newsletter-promise-grid">
+      <div class="newsletter-promise-card">
+        <div class="newsletter-promise-icon">📰</div>
+        <h3>厳選ニュース</h3>
+        <p>国内外のAI×バックオフィス情報を毎朝1本厳選。「読むべきものだけ」を届けます。</p>
+      </div>
+      <div class="newsletter-promise-card">
+        <div class="newsletter-promise-icon">⏱️</div>
+        <h3>1分で要点把握</h3>
+        <p>各記事には要約付き。通勤やコーヒータイムの隙間時間で読み切れます。</p>
+      </div>
+      <div class="newsletter-promise-card">
+        <div class="newsletter-promise-icon">🎯</div>
+        <h3>実務に直結</h3>
+        <p>「明日の業務にどう使えるか」を意識した実践的な切り口でお届けします。</p>
+      </div>
+      <div class="newsletter-promise-card">
+        <div class="newsletter-promise-icon">📊</div>
+        <h3>週次・月次まとめ</h3>
+        <p>毎週金曜には深掘り解説、月初には総まとめ特集も配信します。</p>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Recent samples ── */}}
+  {{ with $recentDailies }}
+  <section class="newsletter-samples">
+    <h2 class="newsletter-section-title">直近の配信サンプル</h2>
+    <p class="newsletter-samples-desc">過去6回のデイリー配信をご紹介。クリックすると本文をご覧いただけます。</p>
+
+    <div class="newsletter-samples-grid">
+      {{ range . }}
+      <a href="{{ .Permalink }}" class="newsletter-sample-card">
+        <div class="newsletter-sample-meta">
+          <span class="newsletter-sample-date">{{ .Date.Format "2006年1月2日" }}配信</span>
+          {{ with .Params.impact_score }}
+            {{ partial "impact-badge.html" . }}
+          {{ end }}
+        </div>
+        <h3 class="newsletter-sample-title">{{ .Title }}</h3>
+        {{ if .Params.summary }}
+          <p class="newsletter-sample-summary">{{ .Params.summary | truncate 110 "…" }}</p>
+        {{ end }}
+        <div class="newsletter-sample-tags">
+          {{ range first 3 .Params.tags }}
+            <span class="newsletter-sample-tag">{{ . }}</span>
+          {{ end }}
+        </div>
+        <span class="newsletter-sample-link">本文を読む <span aria-hidden="true">→</span></span>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* ── Voice / Promise from operator ── */}}
+  <section class="newsletter-voice">
+    <div class="newsletter-voice-inner">
+      <div class="newsletter-voice-quote">”</div>
+      <p class="newsletter-voice-body">AIは「仕事を奪う敵」ではなく、自分の市場価値を高める強力な味方。<br>毎朝1通、あなたのバックオフィスをアップデートするきっかけをお届けします。</p>
+      <p class="newsletter-voice-signature">— AIバックオフィスのたいよう</p>
+    </div>
+  </section>
+
+  {{/* ── Subscribe CTA ── */}}
+  <section class="newsletter-cta">
+    <h2 class="newsletter-cta-title">明日の朝から、受け取ってみませんか？</h2>
+    <p class="newsletter-cta-desc">登録は1分・メールアドレスのみ。配信停止もいつでもワンクリックでできます。</p>
+    <a href="/#subscribe" class="newsletter-cta-button">無料で購読する →</a>
+    <p class="newsletter-cta-note">いつでも配信停止できます・スパムは絶対送りません</p>
+  </section>
+
+</div>
+{{ end }}
