@@ -35,6 +35,8 @@
     {{ partial "article-cta.html" . }}
   </article>
 
+  {{ partial "related-articles.html" . }}
+
   <nav class="article-nav">
     {{ with .PrevInSection }}
       <a href="{{ .Permalink }}" class="nav-prev">&larr; {{ .Title }}</a>

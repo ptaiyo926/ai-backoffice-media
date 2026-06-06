@@ -1,0 +1,42 @@
+{{/*
+  Show up to 3 related articles based on shared tags/categories.
+  Falls back to most recent posts in the same section if no related found.
+*/}}
+
+{{ $related := .Site.RegularPages.Related . | first 3 }}
+{{ if not $related }}
+  {{/* Fallback: latest posts in the same section, excluding current */}}
+  {{ $section := .Section }}
+  {{ $current := . }}
+  {{ $related = where (where .Site.RegularPages "Section" $section) "Permalink" "ne" $current.Permalink | first 3 }}
+{{ end }}
+
+{{ with $related }}
+<section class="related-articles">
+  <div class="related-articles-header">
+    <h2 class="related-articles-title">関連する記事</h2>
+    <p class="related-articles-sub">あわせて読みたいピックアップ</p>
+  </div>
+  <div class="related-articles-grid">
+    {{ range . }}
+    <a href="{{ .Permalink }}" class="related-card">
+      <div class="related-card-meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006/1/2" }}</time>
+        {{ with .Section }}
+          <span class="related-card-section">
+            {{ if eq . "daily" }}デイリー{{ end }}
+            {{ if eq . "weekly" }}週次深掘り{{ end }}
+            {{ if eq . "monthly" }}月刊特集{{ end }}
+          </span>
+        {{ end }}
+      </div>
+      <h3 class="related-card-title">{{ .Title }}</h3>
+      {{ if .Params.summary }}
+        <p class="related-card-summary">{{ .Params.summary | truncate 80 "…" }}</p>
+      {{ end }}
+      <span class="related-card-link">記事を読む <span aria-hidden="true">→</span></span>
+    </a>
+    {{ end }}
+  </div>
+</section>
+{{ end }}

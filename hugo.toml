@@ -27,3 +27,17 @@ enableRobotsTXT = true
   section = ["HTML", "RSS"]
   term = ["HTML"]
   taxonomy = ["HTML"]
+
+[related]
+  threshold = 60
+  includeNewer = true
+  toLower = true
+  [[related.indices]]
+    name = "tags"
+    weight = 100
+  [[related.indices]]
+    name = "categories"
+    weight = 50
+  [[related.indices]]
+    name = "date"
+    weight = 10

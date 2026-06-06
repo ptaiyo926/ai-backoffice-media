@@ -50,6 +50,8 @@
     </article>
   </div>
 
+  {{ partial "related-articles.html" . }}
+
   {{/* ── Article nav ── */}}
   <nav class="article-nav monthly-nav">
     {{ with .PrevInSection }}
