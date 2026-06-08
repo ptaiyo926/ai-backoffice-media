@@ -1,0 +1,56 @@
+{{ define "main" }}
+
+{{ $dailies := where .Site.RegularPages "Section" "daily" }}
+{{ $recent := first 3 (sort $dailies "Date" "desc") }}
+
+<div class="error-page">
+  <div class="container">
+    <div class="error-page-inner">
+
+      <div class="error-page-code" aria-hidden="true">404</div>
+
+      <h1 class="error-page-title">お探しのページが見つかりません</h1>
+
+      <p class="error-page-desc">
+        移動・削除されたか、URLが変更された可能性があります。<br>
+        以下のリンクから目的のページを探してみてください。
+      </p>
+
+      <div class="error-page-actions">
+        <a href="/" class="error-page-btn-primary">トップへ戻る →</a>
+        <button type="button" class="error-page-btn-secondary" onclick="window.openSearchModal && window.openSearchModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="20" y1="20" x2="16.5" y2="16.5"/>
+          </svg>
+          記事を検索する
+        </button>
+      </div>
+
+      <div class="error-page-links">
+        <a href="/daily/">デイリー</a>
+        <a href="/weekly/">週次深掘り</a>
+        <a href="/monthly/">月刊特集</a>
+        <a href="/newsletter/">ニュースレター</a>
+        <a href="/about/">運営者について</a>
+      </div>
+
+      {{ with $recent }}
+      <div class="error-page-recent">
+        <h2 class="error-page-recent-title">最近の記事</h2>
+        <div class="error-page-recent-grid">
+          {{ range . }}
+          <a href="{{ .Permalink }}" class="error-page-recent-card">
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年1月2日" }}</time>
+            <h3>{{ .Title }}</h3>
+          </a>
+          {{ end }}
+        </div>
+      </div>
+      {{ end }}
+
+    </div>
+  </div>
+</div>
+
+{{ end }}

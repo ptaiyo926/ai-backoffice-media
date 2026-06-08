@@ -8,6 +8,7 @@
       <a href="/daily/" {{ if (eq .Section "daily") }}class="active"{{ end }}>デイリー</a>
       <a href="/weekly/" {{ if (eq .Section "weekly") }}class="active"{{ end }}>週次深掘り</a>
       <a href="/monthly/" {{ if (eq .Section "monthly") }}class="active"{{ end }}>月刊特集</a>
+      <a href="/newsletter/" {{ if (in .RelPermalink "/newsletter") }}class="active"{{ end }}>ニュースレター</a>
     </nav>
     <button type="button" class="btn-search" aria-label="検索" onclick="window.openSearchModal && window.openSearchModal()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
