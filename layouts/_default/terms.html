@@ -20,7 +20,7 @@
     <div class="tag-index-grid">
       {{ range .Data.Terms.Alphabetical }}
         <a href="{{ .Page.Permalink }}" class="tag-index-chip">
-          <span class="tag-index-name"># {{ .Name }}</span>
+          <span class="tag-index-name">{{ .Name }}</span>
           <span class="tag-index-count">{{ .Count }}</span>
         </a>
       {{ end }}

@@ -26,7 +26,7 @@
         <span>{{ $tagName }}</span>
       </nav>
       <div class="tag-eyebrow">TAG</div>
-      <h1 class="tag-title"># {{ $tagName }}</h1>
+      <h1 class="tag-title">{{ $tagName }}</h1>
       <p class="tag-count">{{ $count }}件の記事</p>
     </div>
   </div>
@@ -57,7 +57,7 @@
     <h2 class="tag-related-title">関連タグ</h2>
     <div class="tag-related-list">
       {{ range . }}
-        <a href="/tags/{{ . | urlize }}/" class="tag-related-chip"># {{ . }}</a>
+        <a href="/tags/{{ . | urlize }}/" class="tag-related-chip">{{ . }}</a>
       {{ end }}
     </div>
   </section>
