@@ -1,0 +1,226 @@
+{{ define "main" }}
+
+{{ $data := .Site.Data.recommended_tools }}
+{{ $firstCat := index $data.categories 0 }}
+{{ $firstTool := index $firstCat.tools 0 }}
+
+{{/* ── Hero ── */}}
+<div class="page-hero">
+  <div class="container">
+    <div class="page-hero-inner">
+      {{ with .Params.eyebrow }}
+        <div class="page-eyebrow">{{ . }}</div>
+      {{ end }}
+      <h1 class="page-title">{{ .Title }}</h1>
+      {{ with .Params.lead }}
+        <p class="page-lead">{{ . }}</p>
+      {{ end }}
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tools-layout">
+
+    {{/* ── Left sidebar : Category + tab nav ── */}}
+    <aside class="tools-sidebar" aria-label="ツール一覧">
+      {{ range $catIndex, $cat := $data.categories }}
+        <div class="tools-category">
+          <div class="tools-category-label">
+            <span class="tools-category-icon" aria-hidden="true">{{ $cat.icon }}</span>
+            <span>{{ $cat.label }}</span>
+          </div>
+          <ul class="tools-tablist" role="tablist" aria-label="{{ $cat.label }}">
+            {{ range $i, $tool := $cat.tools }}
+              <li>
+                <button
+                  type="button"
+                  class="tools-tab"
+                  role="tab"
+                  data-tool-id="{{ $tool.id }}"
+                  aria-controls="tool-panel-{{ $tool.id }}"
+                  aria-selected="{{ if and (eq $catIndex 0) (eq $i 0) }}true{{ else }}false{{ end }}"
+                  tabindex="{{ if and (eq $catIndex 0) (eq $i 0) }}0{{ else }}-1{{ end }}"
+                >
+                  <span class="tools-tab-icon" style="background:{{ $tool.color }}">{{ $tool.initial }}</span>
+                  <span class="tools-tab-label">
+                    <span class="tools-tab-name">{{ $tool.name }}</span>
+                    <span class="tools-tab-company">{{ $tool.company }}</span>
+                  </span>
+                </button>
+              </li>
+            {{ end }}
+          </ul>
+        </div>
+      {{ end }}
+    </aside>
+
+    {{/* ── Right detail panels ── */}}
+    <div class="tools-detail">
+      {{ range $catIndex, $cat := $data.categories }}
+        {{ range $i, $tool := $cat.tools }}
+          <article
+            class="tools-panel"
+            id="tool-panel-{{ $tool.id }}"
+            role="tabpanel"
+            aria-labelledby="tools-tab-{{ $tool.id }}"
+            {{ if not (and (eq $catIndex 0) (eq $i 0)) }}hidden{{ end }}
+          >
+            {{/* ── Header ── */}}
+            <header class="tools-panel-header">
+              <div class="tools-panel-icon" style="background:{{ $tool.color }}">{{ $tool.initial }}</div>
+              <div class="tools-panel-heading">
+                <p class="tools-panel-company">{{ $tool.company }}</p>
+                <h2 class="tools-panel-name">{{ $tool.name }}</h2>
+              </div>
+            </header>
+
+            {{/* ── Overview ── */}}
+            <section class="tools-section">
+              <h3 class="tools-section-title">
+                <span class="tools-section-emoji">📝</span> 概要
+              </h3>
+              <div class="tools-section-body">
+                {{ $tool.overview | markdownify }}
+              </div>
+            </section>
+
+            {{/* ── Features ── */}}
+            {{ with $tool.features }}
+            <section class="tools-section">
+              <h3 class="tools-section-title">
+                <span class="tools-section-emoji">⚙️</span> 主な機能
+              </h3>
+              <ul class="tools-section-list">
+                {{ range . }}
+                  <li>{{ . | markdownify }}</li>
+                {{ end }}
+              </ul>
+            </section>
+            {{ end }}
+
+            {{/* ── Usage ── */}}
+            {{ with $tool.usage }}
+            <section class="tools-section">
+              <h3 class="tools-section-title">
+                <span class="tools-section-emoji">💡</span> こんな使い方ができます
+              </h3>
+              <ul class="tools-section-list">
+                {{ range . }}
+                  <li>{{ . | markdownify }}</li>
+                {{ end }}
+              </ul>
+            </section>
+            {{ end }}
+
+            {{/* ── Target ── */}}
+            {{ with $tool.target }}
+            <section class="tools-section">
+              <h3 class="tools-section-title">
+                <span class="tools-section-emoji">👥</span> こんな人におすすめ
+              </h3>
+              <ul class="tools-section-list">
+                {{ range . }}
+                  <li>{{ . | markdownify }}</li>
+                {{ end }}
+              </ul>
+            </section>
+            {{ end }}
+
+            {{/* ── External link ── */}}
+            <div class="tools-cta">
+              {{ if $tool.affiliate_shortcode }}
+                <a
+                  href="{{ if eq $tool.affiliate_shortcode "affiliate-freee" }}https://px.a8.net/svt/ejp?a8mat=4B3RV2+C1FL6A+3SPO+9FDI8Y{{ else if eq $tool.affiliate_shortcode "affiliate-mf" }}https://px.a8.net/svt/ejp?a8mat=4B3RV2+C0U5KI+4JGQ+60WN6{{ else }}{{ $tool.url }}{{ end }}"
+                  class="tools-cta-button"
+                  rel="sponsored nofollow noopener"
+                  target="_blank"
+                >
+                  公式サイトを見る
+                  <span class="affiliate-badge" aria-label="広告リンク">PR</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+                <img border="0" width="1" height="1" alt="" src="{{ if eq $tool.affiliate_shortcode "affiliate-freee" }}https://www14.a8.net/0.gif?a8mat=4B3RV2+C1FL6A+3SPO+9FDI8Y{{ else }}https://www19.a8.net/0.gif?a8mat=4B3RV2+C0U5KI+4JGQ+60WN6{{ end }}">
+              {{ else }}
+                <a href="{{ $tool.url }}" class="tools-cta-button" rel="noopener" target="_blank">
+                  公式サイトを見る
+                  <span aria-hidden="true">→</span>
+                </a>
+              {{ end }}
+            </div>
+          </article>
+        {{ end }}
+      {{ end }}
+    </div>
+
+  </div>
+
+  {{/* ── Disclosure note ── */}}
+  <aside class="affiliate-disclosure" role="note" style="margin-top: 64px;">
+    <span class="affiliate-disclosure-badge" aria-hidden="true">広告</span>
+    <p class="affiliate-disclosure-text">
+      <strong>PR</strong> マークの付いたリンクはアフィリエイトリンクです。リンクから商品・サービスをご利用いただくと、運営者に紹介料が支払われる場合があります。ご紹介するサービスは実務目線で有用と判断したものに限定しており、優劣比較や誇大表現は行いません。
+    </p>
+  </aside>
+</div>
+
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.tools-tab');
+    var panels = document.querySelectorAll('.tools-panel');
+    var detail = document.querySelector('.tools-detail');
+
+    function showTool(id, focus) {
+      tabs.forEach(function (tab) {
+        var selected = tab.getAttribute('data-tool-id') === id;
+        tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected && focus) tab.focus();
+      });
+      panels.forEach(function (panel) {
+        var match = panel.id === 'tool-panel-' + id;
+        if (match) {
+          panel.removeAttribute('hidden');
+        } else {
+          panel.setAttribute('hidden', '');
+        }
+      });
+      if (history.replaceState) {
+        history.replaceState(null, '', '#' + id);
+      }
+      if (detail) {
+        detail.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    tabs.forEach(function (tab, idx) {
+      tab.addEventListener('click', function () {
+        showTool(tab.getAttribute('data-tool-id'), false);
+      });
+      tab.addEventListener('keydown', function (e) {
+        var tabsArr = Array.prototype.slice.call(tabs);
+        var current = tabsArr.indexOf(tab);
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          var next = tabsArr[(current + 1) % tabsArr.length];
+          showTool(next.getAttribute('data-tool-id'), true);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          var prev = tabsArr[(current - 1 + tabsArr.length) % tabsArr.length];
+          showTool(prev.getAttribute('data-tool-id'), true);
+        }
+      });
+    });
+
+    // Open the tab matching the URL hash on load (if present)
+    var hash = window.location.hash.replace('#', '');
+    if (hash) {
+      var match = Array.prototype.find.call(tabs, function (tab) {
+        return tab.getAttribute('data-tool-id') === hash;
+      });
+      if (match) showTool(hash, false);
+    }
+  })();
+</script>
+
+{{ end }}

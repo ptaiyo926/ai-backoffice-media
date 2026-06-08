@@ -1,0 +1,399 @@
+categories:
+  - id: ai
+    label: AIツール
+    icon: "🤖"
+    tools:
+      - id: claude
+        name: Claude
+        company: Anthropic
+        color: "#CC785C"
+        initial: C
+        url: "https://claude.ai"
+        affiliate_shortcode: ""
+        overview: |
+          Anthropic 社が開発する対話型AI。**長文の理解と論理的な思考**に強く、社内文書や契約書、議事録などの「文脈を踏まえた読解が必要な業務」と相性が良いツールです。20万トークンを超える長文を扱えるため、複数ファイルや長い文書をまとめて投入できます。
+        features:
+          - "20万トークン超の長文コンテキスト（書籍1冊分の文書を一括処理）"
+          - "Artifacts機能でコード・ドキュメント・スライドを即座に生成"
+          - "Projects機能でファイル・指示を保存して継続的に作業"
+          - "音声/画像の理解、PDF直接読み取り"
+        usage:
+          - "議事録から「決定事項・宿題・期限」を抽出"
+          - "契約書を読み込ませて「リスクのある条項」を指摘してもらう"
+          - "Excel関数の質問（VLOOKUP, IF, ARRAYFORMULA等）"
+          - "提案メールのドラフト作成・チェック"
+        target:
+          - "経理・総務など文書を扱う業務が多い人"
+          - "論理性と正確性を重視したい人"
+          - "長文ドキュメントをAIに処理させたい人"
+
+      - id: chatgpt
+        name: ChatGPT
+        company: OpenAI
+        color: "#10A37F"
+        initial: G
+        url: "https://chatgpt.com"
+        affiliate_shortcode: ""
+        overview: |
+          OpenAI の対話型AI。**世界で最もユーザー数が多く**、生成AI入門としては鉄板の選択肢です。テキスト・画像・音声に対応するマルチモーダル機能や、独自にカスタマイズした「GPTs」を作れる柔軟性が特徴です。
+        features:
+          - "テキスト・画像・音声・動画のマルチモーダル対応"
+          - "画像生成（DALL-E）、Code Interpreter（データ分析）"
+          - "GPTs：独自AIアシスタントを作って共有可能"
+          - "Web検索、Memory、Canvas など豊富な機能"
+        usage:
+          - "メールや提案書のブラッシュアップ"
+          - "Excel/CSVファイルをアップロードしてグラフ化"
+          - "「画像生成」でブログ・SNS用イメージを作成"
+          - "GPTs で自分専用の経理アシスタントを構築"
+        target:
+          - "これからAIを業務に取り入れたい初心者"
+          - "幅広い業務でAIを試したい人"
+          - "視覚資料（画像・スライド）を作りたい人"
+
+      - id: gemini
+        name: Gemini
+        company: Google
+        color: "#4285F4"
+        initial: G
+        url: "https://gemini.google.com"
+        affiliate_shortcode: ""
+        overview: |
+          Google 社の対話型AI。**Google Workspace（Gmail / Docs / Spreadsheets）との統合**が最大の強み。普段から Google サービスを使っている方なら、AIを業務フローに自然に組み込めます。
+        features:
+          - "Gmail/Docs/Spreadsheets 内でそのままAI機能を呼び出し"
+          - "Google Drive 上のファイルを直接参照"
+          - "画像・PDF・動画の理解"
+          - "Deep Research モードで長時間リサーチを自動化"
+        usage:
+          - "Gmail の返信ドラフトを文脈に応じて自動生成"
+          - "Spreadsheets でデータの要約・分類を自動化"
+          - "会議の録画動画から議事録を自動作成"
+          - "Drive 上の大量資料を一括で要約"
+        target:
+          - "Google Workspace を業務で使っている人"
+          - "メール作業に時間を取られている人"
+          - "リサーチ業務の自動化をしたい人"
+
+      - id: claude-code
+        name: Claude Code
+        company: Anthropic
+        color: "#D97757"
+        initial: CC
+        url: "https://www.anthropic.com/claude-code"
+        affiliate_shortcode: ""
+        overview: |
+          Anthropic 社のターミナル / IDE 上で動作する**コーディング特化AI**。「ファイルの直接編集」「複数ファイルの一括変更」「Git 連携」など、実際にコードを書く作業を AI に任せられます。プログラミング経験がある一人社長にとって、業務自動化の最強ツールの1つ。
+        features:
+          - "リポジトリ全体を理解した上での変更提案"
+          - "ファイルの直接編集・新規作成・削除"
+          - "Git コミット・ブランチ操作の自動化"
+          - "コマンド実行・テスト実行を自動で繰り返す"
+        usage:
+          - "毎日の集計スクリプトを自然言語で依頼"
+          - "Hugo / WordPress などの自社サイト改修"
+          - "業務自動化のための n8n ワークフロー作成補助"
+          - "簡単な社内ツール（Streamlit, Flask 等）を爆速で構築"
+        target:
+          - "プログラミングの素養がある一人社長・フリーランス"
+          - "業務自動化を本格化させたい人"
+          - "「コードでバックオフィスを変える」意欲のある人"
+
+      - id: cursor
+        name: Cursor
+        company: Anysphere
+        color: "#000000"
+        initial: CR
+        url: "https://cursor.com"
+        affiliate_shortcode: ""
+        overview: |
+          **AIネイティブ設計のコードエディタ**。VS Code をベースに、AI 補完・チャット・エージェントを統合。プロジェクト全体を理解した上でコードを生成してくれるため、未経験者でも「やりたい事を伝えるだけ」で動くコードが出来上がります。
+        features:
+          - "プロジェクト全体を文脈にしたタブ補完"
+          - "Cmd+K でその場のコードを自然言語で書き換え"
+          - "Agent モードで複数ファイル変更を自動実行"
+          - "VS Code 互換でプラグイン資産がそのまま使える"
+        usage:
+          - "Excel マクロや Google Apps Script の作成"
+          - "自社サイトのデザイン微調整"
+          - "簡単な業務アプリの新規開発"
+        target:
+          - "コードを書く時間が多い人"
+          - "エンジニア兼経営者・副業エンジニア"
+          - "Claude Code よりもGUI付きの環境が好みの人"
+
+      - id: copilot
+        name: GitHub Copilot
+        company: GitHub
+        color: "#24292F"
+        initial: GC
+        url: "https://github.com/features/copilot"
+        affiliate_shortcode: ""
+        overview: |
+          GitHub 純正の AI コード補完サービス。**VS Code / JetBrains / Visual Studio など主要なエディタに対応**しており、コード補完・チャット・PRレビューまで一通り揃っています。GitHub と密に統合されているのが強み。
+        features:
+          - "リアルタイムコード補完"
+          - "Copilot Chat でコードの説明・修正提案"
+          - "PR の自動レビュー・サマリー生成"
+          - "複数のAIモデル（Claude / GPT / Gemini）を選択可能"
+        usage:
+          - "テンプレート的なコードの自動補完"
+          - "見たことのない言語でのコード理解"
+          - "Pull Request のレビュー補助"
+        target:
+          - "GitHub をすでに業務で使っている人"
+          - "エディタ統合で AI を使いたい人"
+
+      - id: genspark
+        name: Genspark
+        company: MainFunc
+        color: "#FF5C35"
+        initial: GS
+        url: "https://www.genspark.ai"
+        affiliate_shortcode: ""
+        overview: |
+          AI が**複数ソースから情報を集約**し、独自の「Sparkpage」というオリジナルページを生成する次世代検索エンジン。リサーチ・調査業務の質と速度を劇的に変えます。AIエージェント機能も強力で、Excel生成やスライド作成まで対応。
+        features:
+          - "Sparkpage：検索結果を1ページの記事として自動生成"
+          - "AIエージェント：Excel / スライド / 動画の自動作成"
+          - "Deep Research モードで時間をかけた精緻な調査"
+          - "複数AIモデルの結果を統合"
+        usage:
+          - "競合他社の最新動向を1分で1ページにまとめる"
+          - "業界レポートの下調べ"
+          - "顧客への提案資料の事前リサーチ"
+          - "経営判断のためのデータ収集"
+        target:
+          - "リサーチ業務が多い人"
+          - "情報収集を効率化したい一人社長"
+
+      - id: perplexity
+        name: Perplexity
+        company: Perplexity AI
+        color: "#20808D"
+        initial: P
+        url: "https://www.perplexity.ai"
+        affiliate_shortcode: ""
+        overview: |
+          **出典明示型** の AI 検索エンジン。すべての回答に「どのサイトから得た情報か」が明記されるため、**情報の正確性が重要な業務**に向いています。学術論文や法律情報の検索も得意。
+        features:
+          - "回答に必ずソース（出典URL）が付く"
+          - "Pro Search で深掘り回答"
+          - "Spaces で過去の検索コンテキストを保存"
+          - "Focus モードで検索範囲を限定（Academic, Reddit など）"
+        usage:
+          - "税制・法令の最新情報を出典付きで確認"
+          - "業界統計データの裏取り"
+          - "「○○について教えて」のような曖昧質問の解像度上げ"
+        target:
+          - "情報の正確性・出典が重要な人（経理・税理士・士業）"
+          - "Google 検索の代替を探している人"
+
+      - id: notebooklm
+        name: NotebookLM
+        company: Google
+        color: "#1A73E8"
+        initial: NL
+        url: "https://notebooklm.google"
+        affiliate_shortcode: ""
+        overview: |
+          Google 社の**「自分の資料だけで対話する」AI**。PDF / Google Docs / Webサイト等をアップロードすると、それらの内容に基づいてのみ回答するため、誤情報（ハルシネーション）が劇的に減ります。社内資料の活用に最適。
+        features:
+          - "アップロードしたソースのみを参照する閉じた回答"
+          - "Audio Overview（音声ポッドキャスト化）"
+          - "マインドマップ自動生成"
+          - "引用元のページを明示"
+        usage:
+          - "社内マニュアル群を全部読み込ませて質問対応AI化"
+          - "契約書5本まとめて「比較しといて」と依頼"
+          - "難しい論文を音声化して通勤中に聴く"
+          - "学習資料の理解度を試す"
+        target:
+          - "大量の社内文書を扱う経理・総務担当者"
+          - "情報の出所を正確に把握したい人"
+
+      - id: manus
+        name: Manus
+        company: Butterfly Effect
+        color: "#5436DA"
+        initial: M
+        url: "https://manus.im"
+        affiliate_shortcode: ""
+        overview: |
+          **自律型AIエージェント**の代表格。「○○を調査して報告書にまとめて」と頼むだけで、ブラウザを開き、情報を集め、ファイルにまとめるところまでを自動で完遂します。**人がAIに依頼する」のではなく「AIに任せる」**新時代のツール。
+        features:
+          - "ブラウザ操作・ファイル作成・コード実行を自律的に判断"
+          - "数時間〜数日にわたる長時間タスクを継続実行"
+          - "結果をレポート・スライド・コード等で出力"
+          - "実行ログを可視化し、途中で介入も可能"
+        usage:
+          - "競合他社の料金プランを一覧化したCSVを自動作成"
+          - "業界の最新トレンドを毎週月曜にレポート化"
+          - "求人サイトを巡回して条件に合う案件をピックアップ"
+        target:
+          - "定型業務の自動化を求める人"
+          - "「自分の時間を作りたい」一人社長・フリーランス"
+
+      - id: gamma
+        name: Gamma
+        company: Gamma
+        color: "#9333EA"
+        initial: GM
+        url: "https://gamma.app"
+        affiliate_shortcode: ""
+        overview: |
+          AIで**プレゼン資料・ドキュメント・Web ページを自動生成**するツール。「営業資料を作って」と一言伝えるだけで、テキスト・画像・レイアウトを含む完成版が出来上がります。資料作成にかかる時間を 1/10 にできるツール。
+        features:
+          - "1プロンプトでスライド一式を自動生成"
+          - "ドキュメント↔スライドの相互変換"
+          - "プロ品質のテンプレートとブランド適用"
+          - "PowerPoint / PDF へのエクスポート"
+        usage:
+          - "顧客への提案書を 30 分で量産"
+          - "社内勉強会のスライドを瞬時に準備"
+          - "事業計画書のドラフト作成"
+        target:
+          - "プレゼン資料・提案書を頻繁に作る人"
+          - "デザイン作業に時間を割けない一人社長"
+
+      - id: notion-ai
+        name: Notion AI
+        company: Notion Labs
+        color: "#000000"
+        initial: N
+        url: "https://www.notion.so/product/ai"
+        affiliate_shortcode: ""
+        overview: |
+          Notion 内のすべてのページ・データベースで使える AI 機能。Notion で文書管理・タスク管理をしている方なら、**普段の作業の流れの中でそのまま AI を呼び出せる**のが最大の利点。
+        features:
+          - "ページ内で要約・翻訳・文章生成"
+          - "データベース全体に対する Q&A"
+          - "AI Connectors で Slack / GitHub 等とも連携"
+          - "Notion Calendar / Mail との統合"
+        usage:
+          - "議事録を要約して「Next Action」を抽出"
+          - "顧客情報DBに「直近3ヶ月で動きのない顧客は？」と質問"
+          - "ブログ下書きを Notion 上で完成まで持っていく"
+        target:
+          - "既に Notion を業務で使っている人"
+          - "情報を一元管理しながら AI を活用したい人"
+
+  - id: accounting
+    label: 会計システム等
+    icon: "💼"
+    tools:
+      - id: freee
+        name: freee会計
+        company: freee
+        color: "#196FFF"
+        initial: F
+        url: "https://www.freee.co.jp/kaikei/"
+        affiliate_shortcode: "affiliate-freee"
+        overview: |
+          中小企業・個人事業主向けクラウド会計ソフトの代表格。**AI による自動仕訳**、銀行口座・クレジットカードの自動連携、確定申告・給与計算までを一気通貫で提供。一人社長やフリーランスの「経理は丸ごとここに任せたい」というニーズに応えるサービス。
+        features:
+          - "銀行・カード・電子マネー連携で取引を自動取得"
+          - "AI が勘定科目を提案、学習して精度向上"
+          - "確定申告（青色・白色）に対応、e-Tax 提出可"
+          - "freee 人事労務（給与・年末調整）と連携"
+        usage:
+          - "日々の経理処理（仕訳入力をほぼゼロに）"
+          - "確定申告書類の自動作成"
+          - "売上・経費のリアルタイム可視化"
+          - "請求書発行・回収管理"
+        target:
+          - "経理業務を最小化したい一人社長・フリーランス"
+          - "経理に時間を取りたくない人"
+          - "確定申告を一人で完結させたい人"
+
+      - id: mf
+        name: マネーフォワード クラウド会計
+        company: マネーフォワード
+        color: "#0073D6"
+        initial: MF
+        url: "https://biz.moneyforward.com/accounting/"
+        affiliate_shortcode: "affiliate-mf"
+        overview: |
+          連携対応サービス数 No.1 のクラウド会計。**会計だけでなく、給与・経費・請求書・勤怠まで「マネーフォワード クラウド」シリーズで揃えられる**のが強み。バックオフィス業務全体を1つのアカウントで管理できます。
+        features:
+          - "金融機関 2,400社超との自動連携"
+          - "AI による仕訳提案・電子帳簿保存法対応"
+          - "クラウド経費・給与・勤怠・請求書 などとシームレス連携"
+          - "会計事務所との共有がスムーズ"
+        usage:
+          - "会計＋給与＋経費精算を一括で運用"
+          - "電子帳簿保存法に準拠した請求書・領収書管理"
+          - "事業の数値を多面的にダッシュボード化"
+        target:
+          - "バックオフィス全体を一元化したい人"
+          - "会計事務所と密に連携したい人"
+          - "中小企業の経理・経営者"
+
+      - id: yayoi
+        name: 弥生会計
+        company: 弥生
+        color: "#E50012"
+        initial: Y
+        url: "https://www.yayoi-kk.co.jp/products/account/"
+        affiliate_shortcode: ""
+        overview: |
+          長年トップシェアを誇る**老舗の会計ソフト**。デスクトップ版（弥生会計）とクラウド版（弥生会計 オンライン）の両方を提供。**充実したサポート体制**と、税理士事務所での導入実績の多さが特徴。
+        features:
+          - "デスクトップ版とクラウド版を選べる"
+          - "電話・チャットの手厚いサポート"
+          - "弥生販売・給与・申告など他シリーズと連携"
+          - "税理士事務所との互換性が高い"
+        usage:
+          - "従来の会計業務をクラウド化していく移行期"
+          - "サポートを受けながら少しずつ習得"
+          - "顧問税理士が弥生を使っている場合の連携"
+        target:
+          - "デスクトップでの操作に慣れている人"
+          - "電話サポートを重視する人"
+          - "顧問税理士が弥生を使っている事業者"
+
+      - id: rakuraku
+        name: 楽楽精算
+        company: ラクス
+        color: "#FF7B00"
+        initial: 楽
+        url: "https://www.rakurakuseisan.jp/"
+        affiliate_shortcode: ""
+        overview: |
+          経費精算に特化した**国内シェアNo.1の経費精算システム**。中堅以上の企業を中心に導入実績多数。**ワークフロー機能・電子帳簿保存法対応**が強み。経費精算で困っている企業の定番の選択肢。
+        features:
+          - "領収書のスマホ撮影→OCR で自動取込"
+          - "承認ワークフローの柔軟な設計"
+          - "電子帳簿保存法・インボイス対応"
+          - "会計ソフト（freee / 弥生 / 勘定奉行 など）と連携"
+        usage:
+          - "従業員の経費精算をペーパーレス化"
+          - "承認フローを電子化して効率化"
+          - "領収書の保管を電子化（法対応）"
+        target:
+          - "経費精算業務に多くの時間を取られている経理担当者"
+          - "従業員 20 名以上の企業"
+          - "ワークフロー機能を重視する企業"
+
+      - id: bakuraku
+        name: バクラク
+        company: LayerX
+        color: "#0066FF"
+        initial: B
+        url: "https://bakuraku.jp/"
+        affiliate_shortcode: ""
+        overview: |
+          LayerX 社が提供する**DXサービスシリーズ**。バクラク請求書受領・経費精算・申請・電子帳簿保存 など、用途別に複数のサービスを展開。**特に AI-OCR の精度**と**直感的なUI**が強み。新興のクラウドサービスらしい使いやすさで急成長中。
+        features:
+          - "業界最高水準の AI-OCR で領収書・請求書を自動データ化"
+          - "請求書受領プロセス全体を一気通貫で電子化"
+          - "稟議・申請のワークフロー、電子帳簿保存法対応"
+          - "シンプルで分かりやすい UI"
+        usage:
+          - "請求書受領のペーパーレス化（紙→電子）"
+          - "稟議・申請プロセスのデジタル化"
+          - "経費精算と請求書管理を1つのプラットフォームで運用"
+        target:
+          - "紙の請求書・申請書が多く残っている企業"
+          - "新しめで使いやすいツールを好む経理担当者"
+          - "AI-OCR の精度を重視する人"
