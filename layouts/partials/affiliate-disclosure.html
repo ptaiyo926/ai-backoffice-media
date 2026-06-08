@@ -1,0 +1,14 @@
+{{/*
+  Affiliate disclosure banner.
+  Shown automatically when the article uses an affiliate shortcode
+  (affiliate-freee / affiliate-mf / affiliate-moshimo / affiliate-amazon)
+  in its raw content.
+*/}}
+{{ if findRE "{{<\\s*affiliate-" .RawContent }}
+<aside class="affiliate-disclosure" role="note">
+  <span class="affiliate-disclosure-badge" aria-hidden="true">広告</span>
+  <p class="affiliate-disclosure-text">
+    本記事はアフィリエイトプログラム（広告）を利用しています。リンクから商品・サービスをご購入いただくと、運営者に報酬が支払われる場合がありますが、ご紹介する内容は実務目線で公平に選定しています。
+  </p>
+</aside>
+{{ end }}
