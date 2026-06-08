@@ -653,12 +653,39 @@ a:hover { text-decoration: underline; }
 .search-modal-panel {
   position: relative;
   max-width: 680px;
-  margin: 80px auto 0;
+  margin: 60px auto;
   padding: 28px 24px 20px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, .35);
   animation: searchSlide .2s ease;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+#search {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 4px -8px 0;
+  padding: 0 8px;
+}
+
+/* Smooth scrollbar styling */
+#search::-webkit-scrollbar {
+  width: 8px;
+}
+#search::-webkit-scrollbar-track {
+  background: transparent;
+}
+#search::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+#search::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 @keyframes searchFade {
