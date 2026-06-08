@@ -1,8 +1,6 @@
 {{ define "main" }}
 
 {{ $data := .Site.Data.recommended_tools }}
-{{ $firstCat := index $data.categories 0 }}
-{{ $firstTool := index $firstCat.tools 0 }}
 
 {{/* ── Hero ── */}}
 <div class="page-hero">
@@ -76,26 +74,26 @@
             </header>
 
             {{/* ── Overview ── */}}
+            {{ with $tool.overview }}
             <section class="tools-section">
               <h3 class="tools-section-title">
                 <span class="tools-section-emoji">📝</span> 概要
               </h3>
               <div class="tools-section-body">
-                {{ $tool.overview | markdownify }}
+                {{ . | markdownify }}
               </div>
             </section>
+            {{ end }}
 
             {{/* ── Features ── */}}
             {{ with $tool.features }}
             <section class="tools-section">
               <h3 class="tools-section-title">
-                <span class="tools-section-emoji">⚙️</span> 主な機能
+                <span class="tools-section-emoji">⚙️</span> 主な特徴
               </h3>
-              <ul class="tools-section-list">
-                {{ range . }}
-                  <li>{{ . | markdownify }}</li>
-                {{ end }}
-              </ul>
+              <div class="tools-section-body">
+                {{ . | markdownify }}
+              </div>
             </section>
             {{ end }}
 
@@ -105,11 +103,9 @@
               <h3 class="tools-section-title">
                 <span class="tools-section-emoji">💡</span> こんな使い方ができます
               </h3>
-              <ul class="tools-section-list">
-                {{ range . }}
-                  <li>{{ . | markdownify }}</li>
-                {{ end }}
-              </ul>
+              <div class="tools-section-body">
+                {{ . | markdownify }}
+              </div>
             </section>
             {{ end }}
 
@@ -129,9 +125,9 @@
 
             {{/* ── External link ── */}}
             <div class="tools-cta">
-              {{ if $tool.affiliate_shortcode }}
+              {{ if $tool.referral_url }}
                 <a
-                  href="{{ if eq $tool.affiliate_shortcode "affiliate-freee" }}https://px.a8.net/svt/ejp?a8mat=4B3RV2+C1FL6A+3SPO+9FDI8Y{{ else if eq $tool.affiliate_shortcode "affiliate-mf" }}https://px.a8.net/svt/ejp?a8mat=4B3RV2+C0U5KI+4JGQ+60WN6{{ else }}{{ $tool.url }}{{ end }}"
+                  href="{{ $tool.referral_url }}"
                   class="tools-cta-button"
                   rel="sponsored nofollow noopener"
                   target="_blank"
@@ -140,7 +136,9 @@
                   <span class="affiliate-badge" aria-label="広告リンク">PR</span>
                   <span aria-hidden="true">→</span>
                 </a>
-                <img border="0" width="1" height="1" alt="" src="{{ if eq $tool.affiliate_shortcode "affiliate-freee" }}https://www14.a8.net/0.gif?a8mat=4B3RV2+C1FL6A+3SPO+9FDI8Y{{ else }}https://www19.a8.net/0.gif?a8mat=4B3RV2+C0U5KI+4JGQ+60WN6{{ end }}">
+                {{ with $tool.affiliate_impression }}
+                  <img border="0" width="1" height="1" alt="" src="{{ . }}">
+                {{ end }}
               {{ else }}
                 <a href="{{ $tool.url }}" class="tools-cta-button" rel="noopener" target="_blank">
                   公式サイトを見る
@@ -159,7 +157,7 @@
   <aside class="affiliate-disclosure" role="note" style="margin-top: 64px;">
     <span class="affiliate-disclosure-badge" aria-hidden="true">広告</span>
     <p class="affiliate-disclosure-text">
-      <strong>PR</strong> マークの付いたリンクはアフィリエイトリンクです。リンクから商品・サービスをご利用いただくと、運営者に紹介料が支払われる場合があります。ご紹介するサービスは実務目線で有用と判断したものに限定しており、優劣比較や誇大表現は行いません。
+      <strong>PR</strong> マークの付いたリンクはアフィリエイト・紹介プログラムを利用しています。リンクから商品・サービスをご利用いただくと、運営者に紹介料が支払われる場合があります。ご紹介するサービスは実務目線で有用と判断したものに限定しており、優劣比較や誇大表現は行いません。
     </p>
   </aside>
 </div>
