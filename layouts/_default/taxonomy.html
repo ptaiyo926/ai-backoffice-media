@@ -1,0 +1,30 @@
+{{ define "main" }}
+
+<div class="tag-hero">
+  <div class="container">
+    <div class="tag-hero-inner">
+      <nav class="tag-breadcrumb" aria-label="パンくず">
+        <a href="/">ホーム</a>
+        <span aria-hidden="true">›</span>
+        <span>タグ一覧</span>
+      </nav>
+      <div class="tag-eyebrow">TAGS</div>
+      <h1 class="tag-title">タグ一覧</h1>
+      <p class="tag-count">{{ len .Data.Terms }}個のタグ</p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <section class="tag-index">
+    <div class="tag-index-grid">
+      {{ range .Data.Terms.Alphabetical }}
+        <a href="{{ .Page.Permalink }}" class="tag-index-chip">
+          <span class="tag-index-name"># {{ .Name }}</span>
+          <span class="tag-index-count">{{ .Count }}</span>
+        </a>
+      {{ end }}
+    </div>
+  </section>
+</div>
+{{ end }}

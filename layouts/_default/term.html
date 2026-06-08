@@ -1,0 +1,74 @@
+{{ define "main" }}
+
+{{ $tagName := .Title }}
+{{ $count := len .Pages }}
+
+{{/* Related tags (other tags that appear on pages with this tag) */}}
+{{ $relatedTags := slice }}
+{{ range .Pages }}
+  {{ range .Params.tags }}
+    {{ if ne . $tagName }}
+      {{ $relatedTags = $relatedTags | append . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $relatedTags = $relatedTags | uniq | first 8 }}
+
+{{/* ── Hero ── */}}
+<div class="tag-hero">
+  <div class="container">
+    <div class="tag-hero-inner">
+      <nav class="tag-breadcrumb" aria-label="パンくず">
+        <a href="/">ホーム</a>
+        <span aria-hidden="true">›</span>
+        <a href="/tags/">タグ</a>
+        <span aria-hidden="true">›</span>
+        <span>{{ $tagName }}</span>
+      </nav>
+      <div class="tag-eyebrow">TAG</div>
+      <h1 class="tag-title"># {{ $tagName }}</h1>
+      <p class="tag-count">{{ $count }}件の記事</p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  {{/* ── Article grid ── */}}
+  {{ if .Pages }}
+  <section class="tag-articles">
+    <div class="article-grid">
+      {{ range .Pages }}
+        {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+    {{ template "_internal/pagination.html" . }}
+  </section>
+  {{ else }}
+  <section class="tag-empty">
+    <p>このタグの記事はまだありません。</p>
+    <a href="/" class="tag-empty-link">トップへ戻る →</a>
+  </section>
+  {{ end }}
+
+  {{/* ── Related tags ── */}}
+  {{ with $relatedTags }}
+  <section class="tag-related">
+    <h2 class="tag-related-title">関連タグ</h2>
+    <div class="tag-related-list">
+      {{ range . }}
+        <a href="/tags/{{ . | urlize }}/" class="tag-related-chip"># {{ . }}</a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* ── Subscribe CTA ── */}}
+  <section class="tag-subscribe">
+    <p class="tag-subscribe-title">「{{ $tagName }}」関連の最新情報をメールで受け取る</p>
+    <p class="tag-subscribe-desc">毎朝7時、AI×バックオフィスの厳選ニュースを無料配信。</p>
+    <a href="/#subscribe" class="tag-subscribe-button">無料で購読する →</a>
+  </section>
+
+</div>
+{{ end }}

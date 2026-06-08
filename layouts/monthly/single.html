@@ -35,6 +35,20 @@
       </div>
       {{ end }}
 
+      {{/* ── Table of contents (shown when article has >= 2 headings) ── */}}
+      {{ if and .TableOfContents (gt (len (findRE "<h[23]" .Content)) 1) }}
+      <details class="monthly-toc" open>
+        <summary class="monthly-toc-summary">
+          <span class="monthly-toc-icon" aria-hidden="true">📑</span>
+          <span>目次</span>
+          <span class="monthly-toc-arrow" aria-hidden="true">▾</span>
+        </summary>
+        <div class="monthly-toc-body">
+          {{ .TableOfContents }}
+        </div>
+      </details>
+      {{ end }}
+
       {{/* ── Body ── */}}
       <div class="monthly-body">
         {{ .Content }}

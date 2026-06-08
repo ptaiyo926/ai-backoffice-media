@@ -4,6 +4,8 @@
     <header class="article-header">
       <div class="article-meta">
         <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006年1月2日" }}</time>
+        <span class="article-meta-dot" aria-hidden="true">・</span>
+        <span class="article-meta-time">読了目安 約{{ math.Max 1 (math.Round (div (float .WordCount) 400)) }}分</span>
         {{ with .Params.impact_score }}
           {{ partial "impact-badge.html" . }}
         {{ end }}
