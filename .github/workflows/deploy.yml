@@ -24,8 +24,16 @@ jobs:
           hugo-version: "latest"
           extended: true
 
-      - name: Build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build Hugo site
         run: hugo --minify
+
+      - name: Generate Pagefind search index
+        run: npx -y pagefind@latest --site public
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
